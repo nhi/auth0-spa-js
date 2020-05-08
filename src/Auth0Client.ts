@@ -92,6 +92,7 @@ export default class Auth0Client {
   private defaultScope: string;
   private scope: string;
   private tokenEndpoint_pathname: string;
+  private contentType: string;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -107,6 +108,7 @@ export default class Auth0Client {
     this.cache = cacheFactory(this.cacheLocation)();
     this.scope = this.options.scope;
     this.tokenEndpoint_pathname = this.options.tokenEndpoint_pathname;
+    this.contentType = this.options.contentType;
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
@@ -311,7 +313,8 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint_pathname: this.tokenEndpoint_pathname
+        tokenEndpoint_pathname: this.tokenEndpoint_pathname,
+        contentType: this.contentType
       } as OAuthTokenOptions,
       this.worker
     );
@@ -444,7 +447,8 @@ export default class Auth0Client {
       code_verifier: transaction.code_verifier,
       grant_type: 'authorization_code',
       code,
-      tokenEndpoint_pathname: this.tokenEndpoint_pathname
+      tokenEndpoint_pathname: this.tokenEndpoint_pathname,
+      contentType: this.contentType
     } as OAuthTokenOptions;
 
     // some old versions of the SDK might not have added redirect_uri to the
@@ -691,7 +695,8 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint_pathname: this.tokenEndpoint_pathname
+        tokenEndpoint_pathname: this.tokenEndpoint_pathname,
+        contentType: this.contentType
       } as OAuthTokenOptions,
       this.worker
     );
@@ -752,7 +757,8 @@ export default class Auth0Client {
           grant_type: 'refresh_token',
           refresh_token: cache && cache.refresh_token,
           redirect_uri,
-          tokenEndpoint_pathname: this.tokenEndpoint_pathname
+          tokenEndpoint_pathname: this.tokenEndpoint_pathname,
+          contentType: this.contentType
         } as RefreshTokenOptions,
         this.worker
       );
