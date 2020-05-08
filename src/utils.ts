@@ -296,11 +296,12 @@ const getJSON = async (url, timeout, options, worker) => {
 };
 
 export const oauthToken = async (
-  { baseUrl, timeout, ...options }: TokenEndpointOptions,
+  { baseUrl, tokenEndpoint_pathname, timeout, ...options }: TokenEndpointOptions,
   worker
-) =>
-  await getJSON(
-    `${baseUrl}/oauth/token`,
+) => {
+  const url = `${baseUrl}${tokenEndpoint_pathname || "/oauth/token"}`;
+  return await getJSON(
+    url,
     timeout,
     {
       method: 'POST',
@@ -314,6 +315,7 @@ export const oauthToken = async (
     },
     worker
   );
+}
 
 export const getCrypto = () => {
   //ie 11.x uses msCrypto
