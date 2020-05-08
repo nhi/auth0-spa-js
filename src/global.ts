@@ -314,6 +314,7 @@ export interface TokenEndpointOptions {
   grant_type: string;
   timeout?: number;
   tokenEndpoint_pathname?: string;
+  contentType?: string;
 }
 
 /**
