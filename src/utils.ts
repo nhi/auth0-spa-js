@@ -215,43 +215,13 @@ const sendMessage = (message, to) =>
     to.postMessage(message, [messageChannel.port2]);
   });
 
-const switchFetch = async (url, opts, timeout, worker, contentType) => {
-  let headers;
-  let body;
-
-  const encodeToFromData = (obj: Record<string, string>) => Object.entries(obj)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-    .join("&")
-
-  switch (contentType) {
-    case 'application/x-www-form-urlencoded':
-      headers = {
-        'Content-type': contentType
-      };
-      body = encodeToFromData(opts.body)
-      break;
-
-    default:
-      headers = {
-        'Content-type': 'application/json'
-      }
-      body = JSON.stringify(opts.body)
-      break;
-  }
+const switchFetch = async (url, opts, timeout, worker) => {
   if (worker) {
     // AbortSignal is not serializable, need to implement in the Web Worker
     delete opts.signal;
-    return sendMessage({ url, timeout, headers, body }, worker);
+    return sendMessage({ url, timeout, ...opts }, worker);
   } else {
-    const response = await fetch(
-      url,
-      {
-        method: 'POST',
-        body: body,
-        headers: headers,
-        signal: opts.signal
-      }
-    );
+    const response = await fetch(url, opts);
     return {
       ok: response.ok,
       json: await response.json()
@@ -263,7 +233,6 @@ const fetchWithTimeout = (
   url,
   options,
   worker,
-  contentType,
   timeout = DEFAULT_FETCH_TIMEOUT_MS
 ) => {
   const controller = createAbortController();
@@ -276,7 +245,7 @@ const fetchWithTimeout = (
 
   // The promise will resolve with one of these two promises (the fetch or the timeout), whichever completes first.
   return Promise.race([
-    switchFetch(url, fetchOptions, timeout, worker, contentType),
+    switchFetch(url, fetchOptions, timeout, worker),
     new Promise((_, reject) => {
       setTimeout(() => {
         controller.abort();
@@ -286,12 +255,12 @@ const fetchWithTimeout = (
   ]);
 };
 
-const getJSON = async (url, timeout, options, worker, contentType) => {
+const getJSON = async (url, timeout, options, worker) => {
   let fetchError, response;
 
   for (let i = 0; i < DEFAULT_SILENT_TOKEN_RETRY_COUNT; i++) {
     try {
-      response = await fetchWithTimeout(url, options, worker, contentType, timeout);
+      response = await fetchWithTimeout(url, options, worker, timeout);
       fetchError = null;
       break;
     } catch (e) {
@@ -327,23 +296,31 @@ const getJSON = async (url, timeout, options, worker, contentType) => {
 };
 
 export const oauthToken = async (
-  { baseUrl, tokenEndpoint_pathname, timeout, contentType, ...options }: TokenEndpointOptions,
+  { baseUrl, timeout, tokenEndpoint = {}, ...options }: TokenEndpointOptions,
   worker
 ) => {
-  const url = `${baseUrl}${tokenEndpoint_pathname || "/oauth/token"}`;
+  let formatBody = JSON.stringify;
+
+  if (tokenEndpoint.contentType === 'application/x-www-form-urlencoded') {
+    formatBody = createQueryParams;
+  }
+
   return await getJSON(
-    url,
+    `${baseUrl}${tokenEndpoint.pathname || '/oauth/token'}`,
     timeout,
     {
-      body: {
+      method: 'POST',
+      body: formatBody({
         redirect_uri: window.location.origin,
         ...options
-      },
+      }),
+      headers: {
+        'Content-type': tokenEndpoint.contentType || 'application/json'
+      }
     },
-    worker,
-    contentType
-  )
-}
+    worker
+  );
+};
 
 export const getCrypto = () => {
   //ie 11.x uses msCrypto
