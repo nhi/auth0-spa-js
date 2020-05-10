@@ -112,7 +112,7 @@ export default class Auth0Client {
     this.domainUrl = `https://${this.options.domain}`;
 
     this.tokenIssuer = this.options.issuer
-      ? `https://${this.options.issuer}`
+      ? `https://${this.options.issuer}/`
       : `${this.domainUrl}/`;
 
     this.defaultScope = getUniqueScopes(
