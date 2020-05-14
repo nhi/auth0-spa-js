@@ -72,6 +72,25 @@ interface AdvancedOptions {
    * Note: The `openid` scope is **always applied** regardless of this setting.
    */
   defaultScope?: string;
+  /**
+   * If set to `true`, the issuer and token endpoints will be
+   * fetched from `{domain}/.well-known/openid-configuration` endpoint.
+   */
+  useWellKnown?: boolean;
+  /**
+   * If `useWellKnown` is set to `true`, this will be populated automatically
+   */
+  oidcConfig?: {
+    /** The issuer to be used for validation of JWTs */
+    issuer?: string;
+    /** The token endpoint to be used */
+    tokenEndpoint?: TokenEndpointOptions['tokenEndpoint'];
+    /**
+     * By default, Auth0 specifies `application/json` as the Content-Type.
+     * If your provider does not support this, you can overwrite it here.
+     */
+    tokenEndpointContentType?: TokenEndpointOptions['tokenEndpointContentType'];
+  };
 }
 
 export interface Auth0ClientOptions extends BaseLoginOptions {
@@ -313,10 +332,10 @@ export interface TokenEndpointOptions {
   client_id: string;
   grant_type: string;
   timeout?: number;
-  tokenEndpoint?: {
-    pathname?: string;
-    contentType?: 'application/json' | 'application/x-www-form-urlencoded';
-  };
+  tokenEndpoint: string;
+  tokenEndpointContentType?:
+    | 'application/json'
+    | 'application/x-www-form-urlencoded';
   [key: string]: any;
 }
 
