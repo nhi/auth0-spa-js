@@ -11,13 +11,35 @@ import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
 import Auth0Client from './Auth0Client';
 import * as ClientStorage from './storage';
 import { Auth0ClientOptions } from './global';
-import { CACHE_LOCATION_MEMORY } from './constants';
+import { CACHE_LOCATION_MEMORY, DEFAULT_FETCH_TIMEOUT_MS } from './constants';
+import { getJSON } from './utils';
 
 import './global';
 
 export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
+  let oidcConfig: Partial<
+    Auth0ClientOptions['advancedOptions']['oidcConfig']
+  > = {};
+  if (options.advancedOptions?.useWellKnown) {
+    const baseURL = new URL(`https://${options.domain}`);
+    const config = await getJSON(
+      `${baseURL.origin}/.well-known/openid-configuration`,
+      DEFAULT_FETCH_TIMEOUT_MS,
+      {},
+      null
+    );
+
+    oidcConfig = {
+      tokenEndpoint: config.token_endpoint,
+      issuer: config.issuer,
+      tokenEndpointContentType: 'application/x-www-form-urlencoded'
+    };
+  }
+
+  options.advancedOptions.oidcConfig = oidcConfig;
+
   const auth0 = new Auth0Client(options);
 
   if (

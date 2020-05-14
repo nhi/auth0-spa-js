@@ -255,7 +255,7 @@ const fetchWithTimeout = (
   ]);
 };
 
-const getJSON = async (url, timeout, options, worker) => {
+export const getJSON = async (url, timeout, options, worker) => {
   let fetchError, response;
 
   for (let i = 0; i < DEFAULT_SILENT_TOKEN_RETRY_COUNT; i++) {
@@ -296,17 +296,23 @@ const getJSON = async (url, timeout, options, worker) => {
 };
 
 export const oauthToken = async (
-  { baseUrl, timeout, tokenEndpoint = {}, ...options }: TokenEndpointOptions,
+  {
+    baseUrl,
+    timeout,
+    tokenEndpoint,
+    tokenEndpointContentType = 'application/json',
+    ...options
+  }: TokenEndpointOptions,
   worker
 ) => {
   let formatBody = JSON.stringify;
 
-  if (tokenEndpoint.contentType === 'application/x-www-form-urlencoded') {
+  if (tokenEndpointContentType === 'application/x-www-form-urlencoded') {
     formatBody = createQueryParams;
   }
 
   return await getJSON(
-    `${baseUrl}${tokenEndpoint.pathname || '/oauth/token'}`,
+    tokenEndpoint || `${baseUrl}/oauth/token`,
     timeout,
     {
       method: 'POST',
@@ -315,7 +321,7 @@ export const oauthToken = async (
         ...options
       }),
       headers: {
-        'Content-type': tokenEndpoint.contentType || 'application/json'
+        'Content-type': tokenEndpointContentType || 'application/json'
       }
     },
     worker

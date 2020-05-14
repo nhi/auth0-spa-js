@@ -93,6 +93,7 @@ export default class Auth0Client {
   private defaultScope: string;
   private scope: string;
   private tokenEndpoint: TokenEndpointOptions['tokenEndpoint'];
+  private tokenEndpointContentType: TokenEndpointOptions['tokenEndpointContentType'];
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -107,13 +108,16 @@ export default class Auth0Client {
 
     this.cache = cacheFactory(this.cacheLocation)();
     this.scope = this.options.scope;
-    this.tokenEndpoint = this.options.tokenEndpoint;
+    this.tokenEndpoint = this.options?.advancedOptions?.oidcConfig?.tokenEndpoint;
+    this.tokenEndpointContentType = this.options?.advancedOptions?.oidcConfig?.tokenEndpointContentType;
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
-    this.tokenIssuer = this.options.issuer
-      ? `https://${this.options.issuer}/`
-      : `${this.domainUrl}/`;
+    this.tokenIssuer =
+      this.options?.advancedOptions?.oidcConfig?.issuer ??
+      (this.options.issuer
+        ? `https://${this.options.issuer}/`
+        : `${this.domainUrl}/`);
 
     this.defaultScope = getUniqueScopes(
       'openid',
@@ -311,7 +315,8 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint: this.tokenEndpoint
+        tokenEndpoint: this.tokenEndpoint,
+        tokenEndpointContentType: this.tokenEndpointContentType
       } as OAuthTokenOptions,
       this.worker
     );
@@ -444,7 +449,8 @@ export default class Auth0Client {
       code_verifier: transaction.code_verifier,
       grant_type: 'authorization_code',
       code,
-      tokenEndpoint: this.tokenEndpoint
+      tokenEndpoint: this.tokenEndpoint,
+      tokenEndpointContentType: this.tokenEndpointContentType
     } as OAuthTokenOptions;
 
     // some old versions of the SDK might not have added redirect_uri to the
@@ -732,7 +738,8 @@ export default class Auth0Client {
           grant_type: 'refresh_token',
           refresh_token: cache && cache.refresh_token,
           redirect_uri,
-          tokenEndpoint: this.tokenEndpoint
+          tokenEndpoint: this.tokenEndpoint,
+          tokenEndpointContentType: this.tokenEndpointContentType
         } as RefreshTokenOptions,
         this.worker
       );
