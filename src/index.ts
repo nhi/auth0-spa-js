@@ -19,9 +19,6 @@ import './global';
 export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
-  let oidcConfig: Partial<
-    Auth0ClientOptions['advancedOptions']['oidcConfig']
-  > = {};
   if (options.advancedOptions?.useWellKnown) {
     const baseURL = new URL(`https://${options.domain}`);
     const config = await getJSON(
@@ -31,14 +28,16 @@ export default async function createAuth0Client(options: Auth0ClientOptions) {
       null
     );
 
-    oidcConfig = {
-      tokenEndpoint: config.token_endpoint,
-      issuer: config.issuer,
-      tokenEndpointContentType: 'application/x-www-form-urlencoded'
+    options.advancedOptions = {
+      ...options.advancedOptions,
+      oidcConfig: {
+        tokenEndpoint: config.token_endpoint,
+        issuer: config.issuer,
+        tokenEndpointContentType: 'application/x-www-form-urlencoded',
+        ...options.advancedOptions.oidcConfig
+      }
     };
   }
-
-  options.advancedOptions.oidcConfig = oidcConfig;
 
   const auth0 = new Auth0Client(options);
 
