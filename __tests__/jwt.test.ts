@@ -159,7 +159,7 @@ describe('jwt', () => {
   it('validates issuer', async () => {
     const id_token = await createJWT();
     expect(() => verify({ ...verifyOptions, id_token, iss: 'wrong' })).toThrow(
-      `Issuer (iss) claim mismatch in the ID token; expected "wrong/", found "${verifyOptions.iss}"`
+      `Issuer (iss) claim mismatch in the ID token; expected "wrong", found "${verifyOptions.iss}"`
     );
   });
   it('validates `sub` is present', async () => {
