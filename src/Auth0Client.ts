@@ -45,8 +45,7 @@ import {
   LogoutOptions,
   RefreshTokenOptions,
   OAuthTokenOptions,
-  CacheLocation,
-  TokenEndpointOptions
+  CacheLocation
 } from './global';
 
 // @ts-ignore
@@ -92,9 +91,10 @@ export default class Auth0Client {
   private tokenIssuer: string;
   private defaultScope: string;
   private scope: string;
-  private tokenEndpoint: TokenEndpointOptions['tokenEndpoint'];
-  private endSessionEndpoint: Auth0ClientOptions['advancedOptions']['oidcConfig']['endSessionEndpoint'];
-  private tokenEndpointContentType: TokenEndpointOptions['tokenEndpointContentType'];
+  private tokenEndpoint?: string;
+  private endSessionEndpoint?: string;
+  private authorizeEndpoint?: string;
+  private tokenEndpointContentType?: string;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -112,6 +112,7 @@ export default class Auth0Client {
     this.tokenEndpoint = this.options?.advancedOptions?.oidcConfig?.tokenEndpoint;
     this.tokenEndpointContentType = this.options?.advancedOptions?.oidcConfig?.tokenEndpointContentType;
     this.endSessionEndpoint = this.options?.advancedOptions?.oidcConfig?.endSessionEndpoint;
+    this.authorizeEndpoint = this.options?.advancedOptions?.oidcConfig?.authorizeEndpoint;
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
@@ -193,7 +194,11 @@ export default class Auth0Client {
     };
   }
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+    return this._url(
+      `${this.authorizeEndpoint ?? '/authorize'}?${createQueryParams(
+        authorizeOptions
+      )}`
+    );
   }
   private _verifyIdToken(id_token: string, nonce?: string) {
     return verifyIdToken({
