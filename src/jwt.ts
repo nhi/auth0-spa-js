@@ -73,7 +73,6 @@ export const verify = (options: JWTVerifyOptions) => {
     );
   }
 
-  decoded.claims.iss += decoded.claims.iss.endsWith('/') ? '' : '/';
   if (decoded.claims.iss !== options.iss) {
     throw new Error(
       `Issuer (iss) claim mismatch in the ID token; expected "${options.iss}", found "${decoded.claims.iss}"`
