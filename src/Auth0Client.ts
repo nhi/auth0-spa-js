@@ -698,7 +698,8 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint: this.tokenEndpoint
+        tokenEndpoint: this.tokenEndpoint,
+        tokenEndpointContentType: this.tokenEndpointContentType
       } as OAuthTokenOptions,
       this.worker
     );
