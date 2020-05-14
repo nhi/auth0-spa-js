@@ -34,7 +34,7 @@ export default async function createAuth0Client(options: Auth0ClientOptions) {
         tokenEndpoint: config.token_endpoint,
         issuer: config.issuer,
         endSessionEndpoint: new URL(config.end_session_endpoint).pathname,
-        authorizeEndpoint: config.authorization_endpoint.pathname,
+        authorizeEndpoint: new URL(config.authorization_endpoint).pathname,
         tokenEndpointContentType: 'application/x-www-form-urlencoded',
         ...options.advancedOptions.oidcConfig
       }
