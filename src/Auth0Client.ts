@@ -93,6 +93,7 @@ export default class Auth0Client {
   private defaultScope: string;
   private scope: string;
   private tokenEndpoint: TokenEndpointOptions['tokenEndpoint'];
+  private endSessionEndpoint: Auth0ClientOptions['advancedOptions']['oidcConfig']['endSessionEndpoint'];
   private tokenEndpointContentType: TokenEndpointOptions['tokenEndpointContentType'];
 
   cacheLocation: CacheLocation;
@@ -110,6 +111,7 @@ export default class Auth0Client {
     this.scope = this.options.scope;
     this.tokenEndpoint = this.options?.advancedOptions?.oidcConfig?.tokenEndpoint;
     this.tokenEndpointContentType = this.options?.advancedOptions?.oidcConfig?.tokenEndpointContentType;
+    this.endSessionEndpoint = this.options?.advancedOptions?.oidcConfig?.endSessionEndpoint;
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
@@ -609,7 +611,8 @@ export default class Auth0Client {
    * auth0.logout();
    * ```
    *
-   * Clears the application session and performs a redirect to `/v2/logout`, using
+   * Clears the application session and performs a redirect to `/v2/logout`
+   * or the endsession endpoint noted in .well-known/openid-configuration, using
    * the parameters provided as arguments, to clear the Auth0 session.
    * If the `federated` option is specified it also clears the Identity Provider session.
    * If the `localOnly` option is specified, it only clears the application session.
@@ -642,7 +645,11 @@ export default class Auth0Client {
     }
 
     const federatedQuery = federated ? `&federated` : '';
-    const url = this._url(`/v2/logout?${createQueryParams(logoutOptions)}`);
+    const url = this._url(
+      `${this.endSessionEndpoint ?? '/v2/logout'}?${createQueryParams(
+        logoutOptions
+      )}`
+    );
 
     window.location.assign(`${url}${federatedQuery}`);
   }
