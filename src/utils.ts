@@ -312,7 +312,7 @@ export const oauthToken = async (
   }
 
   return await getJSON(
-    tokenEndpoint || `${baseUrl}/oauth/token`,
+    `${baseUrl}${tokenEndpoint || '/oauth/token'}`,
     timeout,
     {
       method: 'POST',
