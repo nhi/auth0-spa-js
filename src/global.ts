@@ -90,6 +90,12 @@ interface AdvancedOptions {
      * If your provider does not support this, you can overwrite it here.
      */
     tokenEndpointContentType?: TokenEndpointOptions['tokenEndpointContentType'];
+
+    /** The endsession endpoint to be used */
+    endSessionEndpoint?: string;
+
+    /** The authorize endpoint to be used */
+    authorizeEndpoint?: string;
   };
 }
 

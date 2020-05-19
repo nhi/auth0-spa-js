@@ -31,8 +31,10 @@ export default async function createAuth0Client(options: Auth0ClientOptions) {
     options.advancedOptions = {
       ...options.advancedOptions,
       oidcConfig: {
-        tokenEndpoint: config.token_endpoint,
+        tokenEndpoint: new URL(config.token_endpoint).pathname,
         issuer: config.issuer,
+        endSessionEndpoint: new URL(config.end_session_endpoint).pathname,
+        authorizeEndpoint: new URL(config.authorization_endpoint).pathname,
         tokenEndpointContentType: 'application/x-www-form-urlencoded',
         ...options.advancedOptions.oidcConfig
       }
