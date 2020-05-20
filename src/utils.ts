@@ -296,32 +296,20 @@ export const getJSON = async (url, timeout, options, worker) => {
 };
 
 export const oauthToken = async (
-  {
-    baseUrl,
-    timeout,
-    tokenEndpoint,
-    tokenEndpointContentType = 'application/json',
-    ...options
-  }: TokenEndpointOptions,
+  { baseUrl, timeout, tokenEndpoint, ...options }: TokenEndpointOptions,
   worker
 ) => {
-  let formatBody = JSON.stringify;
-
-  if (tokenEndpointContentType === 'application/x-www-form-urlencoded') {
-    formatBody = createQueryParams;
-  }
-
   return await getJSON(
-    `${baseUrl}${tokenEndpoint || '/oauth/token'}`,
+    `${baseUrl}${tokenEndpoint}`,
     timeout,
     {
       method: 'POST',
-      body: formatBody({
+      body: createQueryParams({
         redirect_uri: window.location.origin,
         ...options
       }),
       headers: {
-        'Content-type': tokenEndpointContentType || 'application/json'
+        'Content-type': 'application/x-www-form-urlencoded'
       }
     },
     worker

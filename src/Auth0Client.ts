@@ -94,7 +94,6 @@ export default class Auth0Client {
   private tokenEndpoint?: string;
   private endSessionEndpoint?: string;
   private authorizeEndpoint?: string;
-  private tokenEndpointContentType?: string;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -109,18 +108,13 @@ export default class Auth0Client {
 
     this.cache = cacheFactory(this.cacheLocation)();
     this.scope = this.options.scope;
-    this.tokenEndpoint = this.options?.advancedOptions?.oidcConfig?.tokenEndpoint;
-    this.tokenEndpointContentType = this.options?.advancedOptions?.oidcConfig?.tokenEndpointContentType;
-    this.endSessionEndpoint = this.options?.advancedOptions?.oidcConfig?.endSessionEndpoint;
-    this.authorizeEndpoint = this.options?.advancedOptions?.oidcConfig?.authorizeEndpoint;
+    this.tokenEndpoint = this.options.oidcConfig?.tokenEndpoint;
+    this.endSessionEndpoint = this.options.oidcConfig?.endSessionEndpoint;
+    this.authorizeEndpoint = this.options.oidcConfig?.authorizeEndpoint;
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
-    this.tokenIssuer =
-      this.options?.advancedOptions?.oidcConfig?.issuer ??
-      (this.options.issuer
-        ? `https://${this.options.issuer}/`
-        : `${this.domainUrl}/`);
+    this.tokenIssuer = this.options?.oidcConfig?.issuer;
 
     this.defaultScope = getUniqueScopes(
       'openid',
@@ -195,9 +189,7 @@ export default class Auth0Client {
   }
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
     return this._url(
-      `${this.authorizeEndpoint ?? '/authorize'}?${createQueryParams(
-        authorizeOptions
-      )}`
+      `${this.authorizeEndpoint}?${createQueryParams(authorizeOptions)}`
     );
   }
   private _verifyIdToken(id_token: string, nonce?: string) {
@@ -323,8 +315,7 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint: this.tokenEndpoint,
-        tokenEndpointContentType: this.tokenEndpointContentType
+        tokenEndpoint: this.tokenEndpoint
       } as OAuthTokenOptions,
       this.worker
     );
@@ -457,8 +448,7 @@ export default class Auth0Client {
       code_verifier: transaction.code_verifier,
       grant_type: 'authorization_code',
       code,
-      tokenEndpoint: this.tokenEndpoint,
-      tokenEndpointContentType: this.tokenEndpointContentType
+      tokenEndpoint: this.tokenEndpoint
     } as OAuthTokenOptions;
 
     // some old versions of the SDK might not have added redirect_uri to the
@@ -651,9 +641,7 @@ export default class Auth0Client {
 
     const federatedQuery = federated ? `&federated` : '';
     const url = this._url(
-      `${this.endSessionEndpoint ?? '/v2/logout'}?${createQueryParams(
-        logoutOptions
-      )}`
+      `${this.endSessionEndpoint}?${createQueryParams(logoutOptions)}`
     );
 
     window.location.assign(`${url}${federatedQuery}`);
@@ -710,8 +698,7 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        tokenEndpoint: this.tokenEndpoint,
-        tokenEndpointContentType: this.tokenEndpointContentType
+        tokenEndpoint: this.tokenEndpoint
       } as OAuthTokenOptions,
       this.worker
     );
@@ -772,8 +759,7 @@ export default class Auth0Client {
           grant_type: 'refresh_token',
           refresh_token: cache && cache.refresh_token,
           redirect_uri,
-          tokenEndpoint: this.tokenEndpoint,
-          tokenEndpointContentType: this.tokenEndpointContentType
+          tokenEndpoint: this.tokenEndpoint
         } as RefreshTokenOptions,
         this.worker
       );

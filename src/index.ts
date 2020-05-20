@@ -19,27 +19,23 @@ import './global';
 export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
-  if (options.advancedOptions?.useWellKnown) {
-    const baseURL = new URL(`https://${options.domain}`);
-    const config = await getJSON(
-      `${baseURL.origin}/.well-known/openid-configuration`,
-      DEFAULT_FETCH_TIMEOUT_MS,
-      {},
-      null
-    );
+  const baseURL = new URL(`https://${options.domain}`);
+  const config = await getJSON(
+    `${baseURL.origin}/.well-known/openid-configuration`,
+    DEFAULT_FETCH_TIMEOUT_MS,
+    {},
+    null
+  );
 
-    options.advancedOptions = {
-      ...options.advancedOptions,
-      oidcConfig: {
-        tokenEndpoint: new URL(config.token_endpoint).pathname,
-        issuer: config.issuer,
-        endSessionEndpoint: new URL(config.end_session_endpoint).pathname,
-        authorizeEndpoint: new URL(config.authorization_endpoint).pathname,
-        tokenEndpointContentType: 'application/x-www-form-urlencoded',
-        ...options.advancedOptions.oidcConfig
-      }
-    };
-  }
+  options = {
+    ...options,
+    oidcConfig: {
+      tokenEndpoint: new URL(config.token_endpoint).pathname,
+      issuer: config.issuer,
+      endSessionEndpoint: new URL(config.end_session_endpoint).pathname,
+      authorizeEndpoint: new URL(config.authorization_endpoint).pathname
+    }
+  };
 
   const auth0 = new Auth0Client(options);
 
