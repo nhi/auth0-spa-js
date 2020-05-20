@@ -100,7 +100,7 @@ export default class Auth0Client {
   private worker: Worker;
 
   constructor(private options: Auth0ClientOptions) {
-    validateCrypto();
+    typeof window !== 'undefined' && validateCrypto();
     this.cacheLocation = options.cacheLocation || CACHE_LOCATION_MEMORY;
 
     if (!cacheFactory(this.cacheLocation)) {
@@ -138,6 +138,7 @@ export default class Auth0Client {
 
     // Don't use web workers unless using refresh tokens in memory and not IE11
     if (
+      typeof window !== 'undefined' &&
       window.Worker &&
       this.options.useRefreshTokens &&
       this.cacheLocation === CACHE_LOCATION_MEMORY &&
@@ -691,8 +692,18 @@ export default class Auth0Client {
       throw new Error('Invalid state');
     }
 
+    const {
+      scope,
+      audience,
+      redirect_uri,
+      ignoreCache,
+      timeoutInSeconds,
+      ...customOptions
+    } = options;
+
     const tokenResult = await oauthToken(
       {
+        ...customOptions,
         baseUrl: this.domainUrl,
         client_id: this.options.client_id,
         code_verifier,
@@ -720,7 +731,7 @@ export default class Auth0Client {
   ): Promise<any> {
     options.scope = getUniqueScopes(
       this.defaultScope,
-      this.scope,
+      this.options.scope,
       options.scope
     );
 
@@ -743,9 +754,19 @@ export default class Auth0Client {
       window.location.origin;
 
     let tokenResult;
+
+    const {
+      scope,
+      audience,
+      ignoreCache,
+      timeoutInSeconds,
+      ...customOptions
+    } = options;
+
     try {
       tokenResult = await oauthToken(
         {
+          ...customOptions,
           baseUrl: this.domainUrl,
           client_id: this.options.client_id,
           grant_type: 'refresh_token',
@@ -764,6 +785,7 @@ export default class Auth0Client {
       }
       throw e;
     }
+
     const decodedToken = this._verifyIdToken(tokenResult.id_token);
 
     return {

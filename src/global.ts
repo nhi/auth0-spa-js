@@ -342,6 +342,7 @@ export interface TokenEndpointOptions {
   tokenEndpointContentType?:
     | 'application/json'
     | 'application/x-www-form-urlencoded';
+  [key: string]: any;
 }
 
 /**
