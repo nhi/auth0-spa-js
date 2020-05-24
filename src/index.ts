@@ -19,44 +19,30 @@ import './global';
 export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
-  const baseURL = new URL(`https://${options.domain}`);
-  let config;
   try {
-    config = await getJSON(
+    const baseURL = new URL(`https://${options.issuer ?? options.domain}`);
+    const wellKnownConfig = await getJSON(
       `${baseURL.origin}/.well-known/openid-configuration`,
       DEFAULT_FETCH_TIMEOUT_MS,
       {},
       null
     );
-  } catch (error) {
-    throw `Cannot get the well-known configuration from ${baseURL.origin}/.well-known/openid-configuration}. ${error}`;
-  }
+    const config = {
+      tokenEndpoint: new URL(wellKnownConfig.token_endpoint).pathname,
+      endSessionEndpoint: new URL(wellKnownConfig.end_session_endpoint)
+        .pathname,
+      authorizeEndpoint: new URL(wellKnownConfig.authorization_endpoint)
+        .pathname
+    };
 
-  if (!config.token_endpoint) {
-    throw 'Cannot get token_endpoint from the well-known configuration';
+    options.issuer = wellKnownConfig.issuer;
+    options.oidcConfig = {
+      ...options.oidcConfig,
+      ...config
+    };
+  } catch {
+    // Swallow .well-known fetch errors, and use hardcoded fallbacks in Auth0Client instead
   }
-
-  if (!config.end_session_endpoint) {
-    throw 'Cannot get end_session_endpoint from the well-known configuration';
-  }
-
-  if (!config.authorization_endpoint) {
-    throw 'Cannot get authorization_endpoint from the well-known configuration';
-  }
-
-  if (!config.issuer) {
-    throw 'Cannot get issuer from the well-known configuration';
-  }
-
-  options = {
-    ...options,
-    oidcConfig: {
-      tokenEndpoint: new URL(config.token_endpoint).pathname,
-      issuer: config.issuer,
-      endSessionEndpoint: new URL(config.end_session_endpoint).pathname,
-      authorizeEndpoint: new URL(config.authorization_endpoint).pathname
-    }
-  };
 
   const auth0 = new Auth0Client(options);
 

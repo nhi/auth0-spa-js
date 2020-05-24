@@ -108,13 +108,18 @@ export default class Auth0Client {
 
     this.cache = cacheFactory(this.cacheLocation)();
     this.scope = this.options.scope;
-    this.tokenEndpoint = this.options.oidcConfig?.tokenEndpoint;
-    this.endSessionEndpoint = this.options.oidcConfig?.endSessionEndpoint;
-    this.authorizeEndpoint = this.options.oidcConfig?.authorizeEndpoint;
+    this.tokenEndpoint =
+      this.options.oidcConfig?.tokenEndpoint ?? '/oauth/token';
+    this.endSessionEndpoint =
+      this.options.oidcConfig?.endSessionEndpoint ?? '/v2/logout';
+    this.authorizeEndpoint =
+      this.options.oidcConfig?.authorizeEndpoint ?? '/authorize';
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
-    this.tokenIssuer = this.options?.oidcConfig?.issuer;
+    this.tokenIssuer = this.options.issuer
+      ? `https://${this.options.issuer}/`
+      : `${this.domainUrl}/`;
 
     this.defaultScope = getUniqueScopes(
       'openid',
