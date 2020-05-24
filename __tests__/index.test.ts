@@ -414,7 +414,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost'
+          redirect_uri: 'http://localhost',
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -449,7 +450,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri
+          redirect_uri,
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -466,7 +468,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost'
+          redirect_uri: 'http://localhost',
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -989,7 +992,8 @@ describe('Auth0', () => {
             client_id: TEST_CLIENT_ID,
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
-            grant_type: 'authorization_code'
+            grant_type: 'authorization_code',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );
@@ -1201,7 +1205,8 @@ describe('Auth0', () => {
             client_id: TEST_CLIENT_ID,
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
-            grant_type: 'authorization_code'
+            grant_type: 'authorization_code',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );
@@ -1558,7 +1563,8 @@ describe('Auth0', () => {
               refresh_token: TEST_REFRESH_TOKEN,
               client_id: TEST_CLIENT_ID,
               grant_type: 'refresh_token',
-              redirect_uri: 'http://localhost'
+              redirect_uri: 'http://localhost',
+              tokenEndpoint: '/oauth/token'
             },
             webWorkerMatcher
           );
@@ -1609,7 +1615,8 @@ describe('Auth0', () => {
               refresh_token: TEST_REFRESH_TOKEN,
               client_id: TEST_CLIENT_ID,
               grant_type: 'refresh_token',
-              redirect_uri: 'http://localhost'
+              redirect_uri: 'http://localhost',
+              tokenEndpoint: '/oauth/token'
             },
             webWorkerMatcher
           );
@@ -1858,7 +1865,8 @@ describe('Auth0', () => {
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
             grant_type: 'authorization_code',
-            redirect_uri: 'http://localhost'
+            redirect_uri: 'http://localhost',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );
