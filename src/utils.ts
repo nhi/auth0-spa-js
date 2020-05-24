@@ -30,10 +30,10 @@ export const parseQueryResult = (queryString: string) => {
     parsedQuery[key] = decodeURIComponent(val);
   });
 
-  return <AuthenticationResult>{
-    ...parsedQuery,
-    expires_in: parseInt(parsedQuery.expires_in)
-  };
+  if (parsedQuery.expires_in) {
+    parsedQuery.expires_in = parseInt(parsedQuery.expires_in);
+  }
+  return <any>parsedQuery;
 };
 
 export const runIframe = (
