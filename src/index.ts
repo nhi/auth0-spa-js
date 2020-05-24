@@ -29,7 +29,7 @@ export default async function createAuth0Client(options: Auth0ClientOptions) {
       null
     );
   } catch (error) {
-    throw `Cannot get the well-known configuration from ${baseURL.origin}/.well-known/openid-configuration}`;
+    throw `Cannot get the well-known configuration from ${baseURL.origin}/.well-known/openid-configuration}. ${error}`;
   }
 
   if (!config.token_endpoint) {
