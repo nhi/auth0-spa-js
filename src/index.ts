@@ -20,12 +20,33 @@ export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
   const baseURL = new URL(`https://${options.domain}`);
-  const config = await getJSON(
-    `${baseURL.origin}/.well-known/openid-configuration`,
-    DEFAULT_FETCH_TIMEOUT_MS,
-    {},
-    null
-  );
+  let config;
+  try {
+    config = await getJSON(
+      `${baseURL.origin}/.well-known/openid-configuration`,
+      DEFAULT_FETCH_TIMEOUT_MS,
+      {},
+      null
+    );
+  } catch (error) {
+    throw `Cannot get the well-known configuration from ${baseURL.origin}/.well-known/openid-configuration}`;
+  }
+
+  if (!config.token_endpoint) {
+    throw 'Cannot get token_endpoint from the well-known configuration';
+  }
+
+  if (!config.end_session_endpoint) {
+    throw 'Cannot get end_session_endpoint from the well-known configuration';
+  }
+
+  if (!config.authorization_endpoint) {
+    throw 'Cannot get authorization_endpoint from the well-known configuration';
+  }
+
+  if (!config.issuer) {
+    throw 'Cannot get issuer from the well-known configuration';
+  }
 
   options = {
     ...options,
