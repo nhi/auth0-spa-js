@@ -136,8 +136,6 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
    * If you wish to override some of the config, you can do it here.
    */
   oidcConfig?: {
-    /** The issuer to be used for validation of JWTs */
-    issuer?: string;
     /** The token endpoint to be used */
     tokenEndpoint?: TokenEndpointOptions['tokenEndpoint'];
     /** The endsession endpoint to be used */
