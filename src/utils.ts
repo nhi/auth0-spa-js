@@ -299,7 +299,7 @@ export const oauthToken = async (
   { baseUrl, timeout, tokenEndpoint, ...options }: TokenEndpointOptions,
   worker
 ) => {
-  return await getJSON(
+  return getJSON(
     `${baseUrl}${tokenEndpoint}`,
     timeout,
     {
