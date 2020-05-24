@@ -489,7 +489,9 @@ describe('Auth0', () => {
     });
     it('calls `tokenVerifier.verify` with the `issuer` from in the oauth/token response', async () => {
       const { auth0, tokenVerifier } = await setup({
-        issuer: 'test-123.auth0.com'
+        oidcConfig: {
+          issuer: 'https://test-123.auth0.com/'
+        }
       });
 
       await auth0.loginWithPopup({});
