@@ -130,9 +130,10 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
   advancedOptions?: AdvancedOptions;
 
   /**
-   * The configs will be
-   * fetched from `{domain}/.well-known/openid-configuration` endpoint.
-   * and will be populated automatically
+   * The configs will be fetched from the
+   * `{domain}/.well-known/openid-configuration` endpoint
+   * and will populate `oidcConfig`.
+   * If you wish to override some of the config, you can do it here.
    */
   oidcConfig?: {
     /** The issuer to be used for validation of JWTs */
