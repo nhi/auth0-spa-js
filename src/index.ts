@@ -20,25 +20,22 @@ export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
   try {
-    const baseURL = new URL(`https://${options.issuer ?? options.domain}`);
+    const baseURL = new URL(`https://${options.domain}`);
     const wellKnownConfig = await getJSON(
       `${baseURL.origin}/.well-known/openid-configuration`,
       DEFAULT_FETCH_TIMEOUT_MS,
       {},
       null
     );
-    const config = {
+
+    options.oidcConfig = {
+      issuer: wellKnownConfig.issuer,
       tokenEndpoint: new URL(wellKnownConfig.token_endpoint).pathname,
       endSessionEndpoint: new URL(wellKnownConfig.end_session_endpoint)
         .pathname,
       authorizeEndpoint: new URL(wellKnownConfig.authorization_endpoint)
-        .pathname
-    };
-
-    options.issuer = wellKnownConfig.issuer;
-    options.oidcConfig = {
-      ...options.oidcConfig,
-      ...config
+        .pathname,
+      ...options.oidcConfig
     };
   } catch {
     // Swallow .well-known fetch errors, and use hardcoded fallbacks in Auth0Client instead

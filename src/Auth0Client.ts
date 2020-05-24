@@ -117,9 +117,7 @@ export default class Auth0Client {
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
-    this.tokenIssuer = this.options.issuer
-      ? `https://${this.options.issuer}/`
-      : `${this.domainUrl}/`;
+    this.tokenIssuer = this.options.oidcConfig?.issuer ?? `${this.domainUrl}/`;
 
     this.defaultScope = getUniqueScopes(
       'openid',
