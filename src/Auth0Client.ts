@@ -150,15 +150,17 @@ export default class Auth0Client {
   }
 
   private _url(path) {
-    const telemetry = encodeURIComponent(
+    const auth0Client = encodeURIComponent(
       btoa(
-        JSON.stringify({
-          name: 'auth0-spa-js',
-          version: version
-        })
+        JSON.stringify(
+          this.options.auth0Client || {
+            name: 'auth0-spa-js',
+            version: version
+          }
+        )
       )
     );
-    return `${this.domainUrl}${path}&auth0Client=${telemetry}`;
+    return `${this.domainUrl}${path}&auth0Client=${auth0Client}`;
   }
 
   private _getParams(
@@ -172,6 +174,7 @@ export default class Auth0Client {
       domain,
       leeway,
       useRefreshTokens,
+      auth0Client,
       cacheLocation,
       advancedOptions,
       ...withoutDomain
