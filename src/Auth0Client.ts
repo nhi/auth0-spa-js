@@ -119,6 +119,10 @@ export default class Auth0Client {
 
     this.tokenIssuer = this.options.oidcConfig?.issuer ?? `${this.domainUrl}/`;
 
+    // delete oidcConfig from the options now that we dont need it anymore
+    // if not deleted the config will be added to the queryParams
+    delete this.options.oidcConfig;
+
     this.defaultScope = getUniqueScopes(
       'openid',
       this.options?.advancedOptions?.defaultScope !== undefined

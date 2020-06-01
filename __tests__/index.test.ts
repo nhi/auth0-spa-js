@@ -63,6 +63,15 @@ const webWorkerMatcher = expect.objectContaining({
 });
 
 const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
+  const utils = require('../src/utils');
+  const spy = jest.spyOn(utils, 'getJSON').mockImplementation(() => {
+    return {
+      issuer: 'https://test.auth0.com/',
+      token_endpoint: 'https://example.com/oauth/token',
+      end_session_endpoint: 'https://example.com/v2/logout',
+      authorization_endpoint: 'https://example.com/authorize'
+    };
+  });
   const auth0 = await createAuth0Client({
     domain: TEST_DOMAIN,
     client_id: TEST_CLIENT_ID,
@@ -82,7 +91,6 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
 
   const tokenVerifier = require('../src/jwt').verify;
   const transactionManager = getDefaultInstance('../src/transaction-manager');
-  const utils = require('../src/utils');
 
   utils.createQueryParams.mockReturnValue(TEST_QUERY_PARAMS);
   utils.encode.mockReturnValue(TEST_ENCODED_STATE);
@@ -124,6 +132,8 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
     location: { href: '' },
     close: jest.fn()
   };
+
+  spy.mockRestore();
 
   return {
     auth0,
