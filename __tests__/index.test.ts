@@ -64,6 +64,15 @@ const webWorkerMatcher = expect.objectContaining({
 });
 
 const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
+  const utils = require('../src/utils');
+  const spy = jest.spyOn(utils, 'getJSON').mockImplementation(() => {
+    return {
+      issuer: 'https://test.auth0.com/',
+      token_endpoint: 'https://example.com/oauth/token',
+      end_session_endpoint: 'https://example.com/v2/logout',
+      authorization_endpoint: 'https://example.com/authorize'
+    };
+  });
   const auth0 = await createAuth0Client({
     domain: TEST_DOMAIN,
     client_id: TEST_CLIENT_ID,
@@ -83,7 +92,6 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
 
   const tokenVerifier = require('../src/jwt').verify;
   const transactionManager = getDefaultInstance('../src/transaction-manager');
-  const utils = require('../src/utils');
 
   utils.createQueryParams.mockReturnValue(TEST_QUERY_PARAMS);
   utils.encode.mockReturnValue(TEST_ENCODED_STATE);
@@ -125,6 +133,8 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
     location: { href: '' },
     close: jest.fn()
   };
+
+  spy.mockRestore();
 
   return {
     auth0,
@@ -444,7 +454,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost'
+          redirect_uri: 'http://localhost',
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -479,7 +490,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri
+          redirect_uri,
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -496,7 +508,8 @@ describe('Auth0', () => {
           code: TEST_CODE,
           code_verifier: TEST_RANDOM_STRING,
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost'
+          redirect_uri: 'http://localhost',
+          tokenEndpoint: '/oauth/token'
         },
         undefined
       );
@@ -516,7 +529,9 @@ describe('Auth0', () => {
     });
     it('calls `tokenVerifier.verify` with the `issuer` from in the oauth/token response', async () => {
       const { auth0, tokenVerifier } = await setup({
-        issuer: 'test-123.auth0.com'
+        oidcConfig: {
+          issuer: 'https://test-123.auth0.com/'
+        }
       });
 
       await auth0.loginWithPopup({});
@@ -1031,7 +1046,8 @@ describe('Auth0', () => {
             client_id: TEST_CLIENT_ID,
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
-            grant_type: 'authorization_code'
+            grant_type: 'authorization_code',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );
@@ -1243,7 +1259,8 @@ describe('Auth0', () => {
             client_id: TEST_CLIENT_ID,
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
-            grant_type: 'authorization_code'
+            grant_type: 'authorization_code',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );
@@ -1609,7 +1626,8 @@ describe('Auth0', () => {
               refresh_token: TEST_REFRESH_TOKEN,
               client_id: TEST_CLIENT_ID,
               grant_type: 'refresh_token',
-              redirect_uri: 'http://localhost'
+              redirect_uri: 'http://localhost',
+              tokenEndpoint: '/oauth/token'
             },
             webWorkerMatcher
           );
@@ -1676,7 +1694,8 @@ describe('Auth0', () => {
               refresh_token: TEST_REFRESH_TOKEN,
               client_id: TEST_CLIENT_ID,
               grant_type: 'refresh_token',
-              redirect_uri: 'http://localhost'
+              redirect_uri: 'http://localhost',
+              tokenEndpoint: '/oauth/token'
             },
             webWorkerMatcher
           );
@@ -1925,7 +1944,8 @@ describe('Auth0', () => {
             code: TEST_CODE,
             code_verifier: TEST_RANDOM_STRING,
             grant_type: 'authorization_code',
-            redirect_uri: 'http://localhost'
+            redirect_uri: 'http://localhost',
+            tokenEndpoint: '/oauth/token'
           },
           undefined
         );

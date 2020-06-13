@@ -49,7 +49,10 @@ const setup = (
       {
         domain: 'auth0_domain',
         client_id: 'auth0_client_id',
-        redirect_uri: 'my_callback_url'
+        redirect_uri: 'my_callback_url',
+        oidcConfig: {
+          authorizeEndpoint: '/authorize'
+        }
       },
       config
     )

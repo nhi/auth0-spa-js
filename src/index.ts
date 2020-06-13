@@ -10,12 +10,36 @@ import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
 
 import Auth0Client from './Auth0Client';
 import { Auth0ClientOptions } from './global';
+import { DEFAULT_FETCH_TIMEOUT_MS } from './constants';
+import { getJSON } from './utils';
 
 import './global';
 
 export * from './global';
 
 export default async function createAuth0Client(options: Auth0ClientOptions) {
+  try {
+    const baseURL = new URL(`https://${options.domain}`);
+    const wellKnownConfig = await getJSON(
+      `${baseURL.origin}/.well-known/openid-configuration`,
+      DEFAULT_FETCH_TIMEOUT_MS,
+      {},
+      null
+    );
+
+    options.oidcConfig = {
+      issuer: wellKnownConfig.issuer,
+      tokenEndpoint: new URL(wellKnownConfig.token_endpoint).pathname,
+      endSessionEndpoint: new URL(wellKnownConfig.end_session_endpoint)
+        .pathname,
+      authorizeEndpoint: new URL(wellKnownConfig.authorization_endpoint)
+        .pathname,
+      ...options.oidcConfig
+    };
+  } catch {
+    // Swallow .well-known fetch errors, and use hardcoded fallbacks in Auth0Client instead
+  }
+
   const auth0 = new Auth0Client(options);
   await auth0.checkSession();
   return auth0;

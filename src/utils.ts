@@ -258,7 +258,7 @@ export const fetchWithTimeout = (
   });
 };
 
-const getJSON = async (url, timeout, options, worker) => {
+export const getJSON = async (url, timeout, options, worker) => {
   let fetchError, response;
 
   for (let i = 0; i < DEFAULT_SILENT_TOKEN_RETRY_COUNT; i++) {
@@ -299,11 +299,16 @@ const getJSON = async (url, timeout, options, worker) => {
 };
 
 export const oauthToken = async (
-  { baseUrl, timeout, ...options }: TokenEndpointOptions,
+  {
+    baseUrl,
+    timeout,
+    tokenEndpoint = '/oauth/token',
+    ...options
+  }: TokenEndpointOptions,
   worker
-) =>
-  await getJSON(
-    `${baseUrl}/oauth/token`,
+) => {
+  return getJSON(
+    `${baseUrl}${tokenEndpoint}`,
     timeout,
     {
       method: 'POST',
@@ -317,6 +322,7 @@ export const oauthToken = async (
     },
     worker
   );
+};
 
 export const getCrypto = () => {
   //ie 11.x uses msCrypto

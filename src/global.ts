@@ -82,10 +82,6 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
    */
   domain: string;
   /**
-   * The issuer to be used for validation of JWTs, optionally defaults to the domain above
-   */
-  issuer?: string;
-  /**
    * The Client ID found on your Application settings page
    */
   client_id: string;
@@ -134,6 +130,25 @@ export interface Auth0ClientOptions extends BaseLoginOptions {
    * Changes to recommended defaults, like defaultScope
    */
   advancedOptions?: AdvancedOptions;
+
+  /**
+   * The configs will be fetched from the
+   * `{domain}/.well-known/openid-configuration` endpoint
+   * and will populate `oidcConfig`.
+   * If you wish to override some of the config, you can do it here.
+   */
+  oidcConfig?: {
+    /**
+     *  The issuer to be used for validation of JWTs, optionally defaults to the domain above
+     */
+    issuer?: string;
+    /** The token endpoint to be used */
+    tokenEndpoint?: TokenEndpointOptions['tokenEndpoint'];
+    /** The endsession endpoint to be used */
+    endSessionEndpoint?: string;
+    /** The authorize endpoint to be used */
+    authorizeEndpoint?: string;
+  };
 }
 
 /**
@@ -328,6 +343,7 @@ export interface TokenEndpointOptions {
   grant_type: string;
   timeout?: number;
   [key: string]: any;
+  tokenEndpoint: string;
 }
 
 /**

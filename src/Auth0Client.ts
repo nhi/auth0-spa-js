@@ -92,6 +92,9 @@ export default class Auth0Client {
   private tokenIssuer: string;
   private defaultScope: string;
   private scope: string;
+  private tokenEndpoint?: string;
+  private endSessionEndpoint?: string;
+  private authorizeEndpoint?: string;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -106,12 +109,20 @@ export default class Auth0Client {
 
     this.cache = cacheFactory(this.cacheLocation)();
     this.scope = this.options.scope;
+    this.tokenEndpoint =
+      this.options.oidcConfig?.tokenEndpoint ?? '/oauth/token';
+    this.endSessionEndpoint =
+      this.options.oidcConfig?.endSessionEndpoint ?? '/v2/logout';
+    this.authorizeEndpoint =
+      this.options.oidcConfig?.authorizeEndpoint ?? '/authorize';
     this.transactionManager = new TransactionManager();
     this.domainUrl = `https://${this.options.domain}`;
 
-    this.tokenIssuer = this.options.issuer
-      ? `https://${this.options.issuer}/`
-      : `${this.domainUrl}/`;
+    this.tokenIssuer = this.options.oidcConfig?.issuer ?? `${this.domainUrl}/`;
+
+    // delete oidcConfig from the options now that we dont need it anymore
+    // if not deleted the config will be added to the queryParams
+    delete this.options.oidcConfig;
 
     this.defaultScope = getUniqueScopes(
       'openid',
@@ -188,7 +199,9 @@ export default class Auth0Client {
     };
   }
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+    return this._url(
+      `${this.authorizeEndpoint}?${createQueryParams(authorizeOptions)}`
+    );
   }
   private _verifyIdToken(id_token: string, nonce?: string) {
     return verifyIdToken({
@@ -312,7 +325,8 @@ export default class Auth0Client {
         code_verifier,
         code: codeResult.code,
         grant_type: 'authorization_code',
-        redirect_uri: params.redirect_uri
+        redirect_uri: params.redirect_uri,
+        tokenEndpoint: this.tokenEndpoint
       } as OAuthTokenOptions,
       this.worker
     );
@@ -444,7 +458,8 @@ export default class Auth0Client {
       client_id: this.options.client_id,
       code_verifier: transaction.code_verifier,
       grant_type: 'authorization_code',
-      code
+      code,
+      tokenEndpoint: this.tokenEndpoint
     } as OAuthTokenOptions;
 
     // some old versions of the SDK might not have added redirect_uri to the
@@ -637,7 +652,8 @@ export default class Auth0Client {
    * auth0.logout();
    * ```
    *
-   * Clears the application session and performs a redirect to `/v2/logout`, using
+   * Clears the application session and performs a redirect to `/v2/logout`
+   * or the endsession endpoint noted in .well-known/openid-configuration, using
    * the parameters provided as arguments, to clear the Auth0 session.
    * If the `federated` option is specified it also clears the Identity Provider session.
    * If the `localOnly` option is specified, it only clears the application session.
@@ -670,7 +686,9 @@ export default class Auth0Client {
     }
 
     const federatedQuery = federated ? `&federated` : '';
-    const url = this._url(`/v2/logout?${createQueryParams(logoutOptions)}`);
+    const url = this._url(
+      `${this.endSessionEndpoint}?${createQueryParams(logoutOptions)}`
+    );
 
     window.location.assign(`${url}${federatedQuery}`);
   }
@@ -725,7 +743,8 @@ export default class Auth0Client {
         code_verifier,
         code: codeResult.code,
         grant_type: 'authorization_code',
-        redirect_uri: params.redirect_uri
+        redirect_uri: params.redirect_uri,
+        tokenEndpoint: this.tokenEndpoint
       } as OAuthTokenOptions,
       this.worker
     );
@@ -785,7 +804,8 @@ export default class Auth0Client {
           client_id: this.options.client_id,
           grant_type: 'refresh_token',
           refresh_token: cache && cache.refresh_token,
-          redirect_uri
+          redirect_uri,
+          tokenEndpoint: this.tokenEndpoint
         } as RefreshTokenOptions,
         this.worker
       );
