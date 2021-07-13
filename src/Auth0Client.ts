@@ -153,6 +153,9 @@ export default class Auth0Client {
   private scope: string;
   private cookieStorage: ClientStorage;
   private sessionCheckExpiryDays: number;
+  private tokenEndpoint?: string;
+  private endSessionEndpoint?: string;
+  private authorizeEndpoint?: string;
 
   cacheLocation: CacheLocation;
   private worker: Worker;
@@ -195,8 +198,21 @@ export default class Auth0Client {
     this.scope = this.options.scope;
     this.transactionManager = new TransactionManager(transactionStorage);
     this.cacheManager = new CacheManager(cache, this.options.client_id);
+    this.tokenEndpoint =
+      this.options.oidcConfig?.tokenEndpoint ?? '/oauth/token';
+    this.endSessionEndpoint =
+      this.options.oidcConfig?.endSessionEndpoint ?? '/v2/logout';
+    this.authorizeEndpoint =
+      this.options.oidcConfig?.authorizeEndpoint ?? '/authorize';
     this.domainUrl = `https://${this.options.domain}`;
-    this.tokenIssuer = getTokenIssuer(this.options.issuer, this.domainUrl);
+    this.tokenIssuer = getTokenIssuer(
+      this.options.issuer ?? this.options.oidcConfig?.issuer,
+      this.domainUrl
+    );
+
+    // delete oidcConfig from the options now that we dont need it anymore
+    // if not deleted the config will be added to the queryParams
+    delete this.options.oidcConfig;
 
     this.defaultScope = getUniqueScopes(
       'openid',
@@ -269,7 +285,9 @@ export default class Auth0Client {
     };
   }
   private _authorizeUrl(authorizeOptions: AuthorizeOptions) {
-    return this._url(`/authorize?${createQueryParams(authorizeOptions)}`);
+    return this._url(
+      `${this.authorizeEndpoint}?${createQueryParams(authorizeOptions)}`
+    );
   }
   private _verifyIdToken(
     id_token: string,
@@ -419,7 +437,8 @@ export default class Auth0Client {
         code: codeResult.code,
         grant_type: 'authorization_code',
         redirect_uri: params.redirect_uri,
-        auth0Client: this.options.auth0Client
+        tokenEndpoint: this.tokenEndpoint,
+        auth0Client: this.options.auth0Client 
       } as OAuthTokenOptions,
       this.worker
     );
@@ -571,6 +590,7 @@ export default class Auth0Client {
       code_verifier: transaction.code_verifier,
       grant_type: 'authorization_code',
       code,
+      tokenEndpoint: this.tokenEndpoint,
       auth0Client: this.options.auth0Client
     } as OAuthTokenOptions;
     // some old versions of the SDK might not have added redirect_uri to the
@@ -821,7 +841,9 @@ export default class Auth0Client {
 
     const { federated, ...logoutOptions } = options;
     const federatedQuery = federated ? `&federated` : '';
-    const url = this._url(`/v2/logout?${createQueryParams(logoutOptions)}`);
+    const url = this._url(
+      `${this.endSessionEndpoint}?${createQueryParams(logoutOptions)}`
+    );
 
     return url + federatedQuery;
   }
@@ -831,7 +853,8 @@ export default class Auth0Client {
    * auth0.logout();
    * ```
    *
-   * Clears the application session and performs a redirect to `/v2/logout`, using
+   * Clears the application session and performs a redirect to `/v2/logout`
+   * or the endsession endpoint noted in .well-known/openid-configuration, using
    * the parameters provided as arguments, to clear the Auth0 session.
    *
    * **Note:** If you are using a custom cache, and specifying `localOnly: true`, and you want to perform actions or read state from the SDK immediately after logout, you should `await` the result of calling `logout`.
@@ -929,6 +952,7 @@ export default class Auth0Client {
           code: codeResult.code,
           grant_type: 'authorization_code',
           redirect_uri: params.redirect_uri,
+          tokenEndpoint: this.tokenEndpoint,
           auth0Client: this.options.auth0Client
         } as OAuthTokenOptions,
         this.worker
@@ -1009,6 +1033,7 @@ export default class Auth0Client {
           refresh_token: cache && cache.refresh_token,
           redirect_uri,
           ...(timeout && { timeout }),
+          tokenEndpoint: this.tokenEndpoint,
           auth0Client: this.options.auth0Client
         } as RefreshTokenOptions,
         this.worker

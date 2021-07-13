@@ -26,7 +26,8 @@ import {
   TEST_REDIRECT_URI,
   TEST_REFRESH_TOKEN,
   TEST_SCOPES,
-  TEST_STATE
+  TEST_STATE,
+  TEST_ENDPOINT
 } from '../constants';
 
 import {
@@ -262,6 +263,7 @@ describe('Auth0Client', () => {
       assertPost(
         'https://auth0_domain/oauth/token',
         {
+          tokenEndpoint: TEST_ENDPOINT,
           redirect_uri: TEST_REDIRECT_URI,
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
@@ -350,7 +352,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: 'my_code'
+          code: 'my_code',
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))

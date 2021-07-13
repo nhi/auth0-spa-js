@@ -11,7 +11,8 @@ import { oauthToken } from '../src/api';
 // @ts-ignore
 import Worker from '../src/worker/token.worker';
 import { MessageChannel } from 'worker_threads';
-import { TEST_REDIRECT_URI } from './constants';
+import { TEST_ENDPOINT, TEST_REDIRECT_URI } from './constants';
+import { createQueryParams } from '../src/utils';
 (<any>global).MessageChannel = MessageChannel;
 
 jest.mock('../src/worker/token.worker');
@@ -55,14 +56,15 @@ describe('oauthToken', () => {
       client_id: 'client_idIn',
       code: 'codeIn',
       code_verifier: 'code_verifierIn',
-      auth0Client
+      auth0Client,
+      tokenEndpoint: TEST_ENDPOINT
     });
 
     expect(mockFetch).toBeCalledWith('https://test.com/oauth/token', {
       body:
-        '{"redirect_uri":"http://localhost","grant_type":"authorization_code","client_id":"client_idIn","code":"codeIn","code_verifier":"code_verifierIn"}',
+        'redirect_uri=http%3A%2F%2Flocalhost&grant_type=authorization_code&client_id=client_idIn&code=codeIn&code_verifier=code_verifierIn',
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/x-www-form-urlencoded',
         'Auth0-Client': btoa(JSON.stringify(auth0Client))
       },
       method: 'POST',
@@ -87,7 +89,7 @@ describe('oauthToken', () => {
       grant_type: 'authorization_code',
       client_id: 'client_idIn',
       code: 'codeIn',
-      code_verifier: 'code_verifierIn'
+      code_verifier: 'code_verifierIn',
     };
 
     const auth0Client = {
@@ -105,15 +107,16 @@ describe('oauthToken', () => {
         code_verifier: 'code_verifierIn',
         audience: '__test_audience__',
         scope: '__test_scope__',
-        auth0Client
+        auth0Client,
+        tokenEndpoint: TEST_ENDPOINT
       },
       worker
     );
 
     expect(mockFetch).toBeCalledWith('https://test.com/oauth/token', {
-      body: JSON.stringify(body),
+      body: createQueryParams(body),
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/x-www-form-urlencoded',
         'Auth0-Client': btoa(JSON.stringify(auth0Client))
       },
       method: 'POST',
@@ -126,9 +129,9 @@ describe('oauthToken', () => {
       {
         fetchUrl: 'https://test.com/oauth/token',
         fetchOptions: {
-          body: JSON.stringify(body),
+          body: createQueryParams(body),
           headers: {
-            'Content-type': 'application/json',
+            'Content-type': 'application/x-www-form-urlencoded',
             'Auth0-Client': btoa(JSON.stringify(auth0Client))
           },
           method: 'POST',
@@ -166,7 +169,8 @@ describe('oauthToken', () => {
         code: 'codeIn',
         code_verifier: 'code_verifierIn',
         grant_type: 'authorization_code',
-        auth0Client: DEFAULT_AUTH0_CLIENT
+        auth0Client: DEFAULT_AUTH0_CLIENT,
+        tokenEndpoint: TEST_ENDPOINT
       });
     } catch (error) {
       expect(error.message).toBe(theError.error_description);
@@ -192,7 +196,8 @@ describe('oauthToken', () => {
         code: 'codeIn',
         code_verifier: 'code_verifierIn',
         grant_type: 'authorization_code',
-        auth0Client: DEFAULT_AUTH0_CLIENT
+        auth0Client: DEFAULT_AUTH0_CLIENT,
+        tokenEndpoint: TEST_ENDPOINT
       });
     } catch (error) {
       expect(error.message).toBe(
@@ -219,7 +224,8 @@ describe('oauthToken', () => {
         code: 'codeIn',
         code_verifier: 'code_verifierIn',
         grant_type: 'authorization_code',
-        auth0Client: DEFAULT_AUTH0_CLIENT
+        auth0Client: DEFAULT_AUTH0_CLIENT,
+        tokenEndpoint: TEST_ENDPOINT
       });
     } catch (error) {
       expect(error.message).toBe('Network failure');
@@ -249,7 +255,8 @@ describe('oauthToken', () => {
       code: 'codeIn',
       code_verifier: 'code_verifierIn',
       grant_type: 'authorization_code',
-      auth0Client: DEFAULT_AUTH0_CLIENT
+      auth0Client: DEFAULT_AUTH0_CLIENT,
+      tokenEndpoint: TEST_ENDPOINT
     });
 
     expect(result.access_token).toBe('access-token');
@@ -267,7 +274,8 @@ describe('oauthToken', () => {
         code: 'codeIn',
         code_verifier: 'code_verifierIn',
         grant_type: 'authorization_code',
-        auth0Client: DEFAULT_AUTH0_CLIENT
+        auth0Client: DEFAULT_AUTH0_CLIENT,
+        tokenEndpoint: TEST_ENDPOINT
       })
     ).rejects.toMatchObject({ message: 'Failed to fetch' });
   });
@@ -295,7 +303,8 @@ describe('oauthToken', () => {
         code_verifier: 'code_verifierIn',
         timeout: 100,
         grant_type: 'authorization_code',
-        auth0Client: DEFAULT_AUTH0_CLIENT
+        auth0Client: DEFAULT_AUTH0_CLIENT,
+        tokenEndpoint: TEST_ENDPOINT
       });
     } catch (e) {
       expect(e.message).toBe("Timeout when executing 'fetch'");
@@ -325,7 +334,8 @@ describe('oauthToken', () => {
       code_verifier: 'code_verifierIn',
       timeout: 500,
       grant_type: 'authorization_code',
-      auth0Client: DEFAULT_AUTH0_CLIENT
+      auth0Client: DEFAULT_AUTH0_CLIENT,
+      tokenEndpoint: TEST_ENDPOINT
     });
 
     expect(result.access_token).toBe('access-token');

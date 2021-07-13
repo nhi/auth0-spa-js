@@ -36,7 +36,8 @@ import {
   TEST_REDIRECT_URI,
   TEST_REFRESH_TOKEN,
   TEST_SCOPES,
-  TEST_STATE
+  TEST_STATE,
+  TEST_ENDPOINT
 } from '../constants';
 
 import { releaseLockSpy } from '../../__mocks__/browser-tabs-lock';
@@ -195,7 +196,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: TEST_CODE
+          code: TEST_CODE,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -222,7 +224,8 @@ describe('Auth0Client', () => {
           redirect_uri: TEST_REDIRECT_URI,
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -251,7 +254,8 @@ describe('Auth0Client', () => {
           redirect_uri,
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -280,7 +284,8 @@ describe('Auth0Client', () => {
           redirect_uri: 'http://localhost',
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -400,7 +405,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: TEST_CODE
+          code: TEST_CODE,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(auth0Client))
@@ -503,7 +509,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
           redirect_uri: TEST_REDIRECT_URI,
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -517,7 +524,7 @@ describe('Auth0Client', () => {
     it('refreshes the token without the worker', async () => {
       const auth0 = setup({
         useRefreshTokens: true,
-        cacheLocation: 'localstorage'
+        cacheLocation: 'localstorage',
       });
 
       expect((<any>auth0).worker).toBeUndefined();
@@ -531,7 +538,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: TEST_CODE
+          code: TEST_CODE,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -555,7 +563,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
           redirect_uri: TEST_REDIRECT_URI,
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -585,7 +594,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: TEST_CODE
+          code: TEST_CODE,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -600,7 +610,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           grant_type: 'refresh_token',
           redirect_uri: TEST_REDIRECT_URI,
-          refresh_token: TEST_REFRESH_TOKEN
+          refresh_token: TEST_REFRESH_TOKEN,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(JSON.stringify(DEFAULT_AUTH0_CLIENT))
@@ -1182,7 +1193,8 @@ describe('Auth0Client', () => {
         grant_type: 'authorization_code',
         custom_param: 'hello world',
         another_custom_param: 'bar',
-        code_verifier: TEST_CODE_VERIFIER
+        code_verifier: TEST_CODE_VERIFIER,
+        tokenEndpoint: TEST_ENDPOINT
       });
     });
 
@@ -1226,7 +1238,8 @@ describe('Auth0Client', () => {
         grant_type: 'refresh_token',
         refresh_token: 'a_refresh_token',
         custom_param: 'hello world',
-        another_custom_param: 'bar'
+        another_custom_param: 'bar',
+        tokenEndpoint: TEST_ENDPOINT
       });
 
       expect(access_token).toEqual(TEST_ACCESS_TOKEN);

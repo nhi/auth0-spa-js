@@ -1,6 +1,7 @@
 import { TokenEndpointOptions } from './global';
 import { DEFAULT_AUTH0_CLIENT } from './constants';
 import { getJSON } from './http';
+import { createQueryParams } from './utils';
 
 export type TokenEndpointResponse = {
   id_token: string;
@@ -17,20 +18,21 @@ export async function oauthToken(
     audience,
     scope,
     auth0Client,
+    tokenEndpoint,
     ...options
   }: TokenEndpointOptions,
   worker?: Worker
 ) {
   return await getJSON<TokenEndpointResponse>(
-    `${baseUrl}/oauth/token`,
+    `${baseUrl}${tokenEndpoint}`,
     timeout,
     audience || 'default',
     scope,
     {
       method: 'POST',
-      body: JSON.stringify(options),
+      body: createQueryParams(options),
       headers: {
-        'Content-type': 'application/json',
+        'Content-type': 'application/x-www-form-urlencoded',
         'Auth0-Client': btoa(
           JSON.stringify(auth0Client || DEFAULT_AUTH0_CLIENT)
         )

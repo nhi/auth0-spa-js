@@ -1,4 +1,5 @@
 import { MISSING_REFRESH_TOKEN_ERROR_MESSAGE } from '../constants';
+import { createQueryParams, parseQueryResult } from '../utils';
 import { WorkerRefreshTokenMessage } from './worker.types';
 
 let refreshTokens: Record<string, string> = {};
@@ -31,7 +32,7 @@ const messageHandler = async ({
   const { audience, scope } = auth || {};
 
   try {
-    const body = JSON.parse(fetchOptions.body);
+    const body = parseQueryResult(fetchOptions.body) as any;
 
     if (!body.refresh_token && body.grant_type === 'refresh_token') {
       const refreshToken = getRefreshToken(audience, scope);
@@ -40,7 +41,7 @@ const messageHandler = async ({
         throw new Error(MISSING_REFRESH_TOKEN_ERROR_MESSAGE);
       }
 
-      fetchOptions.body = JSON.stringify({
+      fetchOptions.body = createQueryParams({
         ...body,
         refresh_token: refreshToken
       });

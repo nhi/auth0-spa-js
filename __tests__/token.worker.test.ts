@@ -1,5 +1,6 @@
 import unfetch from 'unfetch';
 import { MISSING_REFRESH_TOKEN_ERROR_MESSAGE } from '../src/constants';
+import { parseQueryResult } from '../src/utils';
 
 jest.mock('unfetch');
 
@@ -107,7 +108,7 @@ describe('token worker', () => {
       }
     });
 
-    expect(JSON.parse(mockFetch.mock.calls[1][1].body)).toEqual({
+    expect(parseQueryResult(mockFetch.mock.calls[1][1].body)).toEqual({
       grant_type: 'refresh_token',
       refresh_token: 'foo'
     });

@@ -49,7 +49,16 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
   const getDefaultInstance = m => require(m).default.mock.instances[0];
   const tokenVerifier = require('../src/jwt').verify;
   const utils = require('../src/utils');
+  const http = require('../src/http');
   const api = require('../src/api');
+  const spy = jest.spyOn(http, 'getJSON').mockImplementation(() => {
+    return {
+      issuer: 'https://test.auth0.com/',
+      token_endpoint: 'https://example.com/oauth/token',
+      end_session_endpoint: 'https://example.com/v2/logout',
+      authorization_endpoint: 'https://example.com/authorize'
+    };
+  });
 
   utils.createQueryParams.mockReturnValue(TEST_QUERY_PARAMS);
   utils.encode.mockReturnValue(TEST_ENCODED_STATE);
@@ -92,6 +101,7 @@ const setup = async (clientOptions: Partial<Auth0ClientOptions> = {}) => {
     close: jest.fn()
   };
 
+  spy.mockRestore();
   const auth0 = await createAuth0Client({
     domain: TEST_DOMAIN,
     client_id: TEST_CLIENT_ID,

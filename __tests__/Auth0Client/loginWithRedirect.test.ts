@@ -31,7 +31,8 @@ import {
   TEST_NONCE,
   TEST_REDIRECT_URI,
   TEST_SCOPES,
-  TEST_STATE
+  TEST_STATE,
+  TEST_ENDPOINT
 } from '../constants';
 import version from '../../src/version';
 
@@ -127,7 +128,8 @@ describe('Auth0Client', () => {
           client_id: TEST_CLIENT_ID,
           code_verifier: TEST_CODE_VERIFIER,
           grant_type: 'authorization_code',
-          code: TEST_CODE
+          code: TEST_CODE,
+          tokenEndpoint: TEST_ENDPOINT
         },
         {
           'Auth0-Client': btoa(
